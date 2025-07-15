@@ -3,6 +3,7 @@
 This repository provides the firmware and software source code and hardware schematic for the ORCAS project. 
 
 # Features demostration
+[![Demo](./Demo.jpg)](https://youtu.be/QgqkCPKWOdw)
 - The ORCAS project implements a wirelessly controlled airsoft turret that can be controlled via the web browser on a mobile phone.
 - The turret equips a airsoft AEG modified from Jinming Gen8 gel blaster gearbox and a laser head for zeroing.
 - The turret fires 7-8mm gel balls, and its barrel assembly contains an LED board as a tracer, but it fails to light up the glowing gel balls as expected.
@@ -29,7 +30,7 @@ This repository provides the firmware and software source code and hardware sche
 - The tutorial will only give an overview of the installation and configuration of the Raspberry Pi OS to run the software. You will need to refer to the official Raspberry Pi documentation for detailed instructions.
 
 # Mechanical components
-- All the STL files of the 3D printed parts will be sold on Cults3D.
+- All the STL files of the 3D printed parts are NOT shared or open-source, and these files will be sold on Cults3D for private use only.
 - Besides the 3D printed parts, there are also some off-the-shelf mechanical components used in this project and you can refer to the part names listed in the tutorial that will be uploaded. to search and purchase these parts on the web.
 
 # Tutorial
