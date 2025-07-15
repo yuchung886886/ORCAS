@@ -3,7 +3,7 @@
 This repository provides the firmware and software source code and hardware schematic for the ORCAS project. 
 
 # Features demostration
-[![Demo](./Demo.jpg)](https://youtu.be/QgqkCPKWOdw)
+[![Demo](./Demo.jpg)](https://youtu.be/vNm99Zm-Rzw)
 - The ORCAS project implements a wirelessly controlled airsoft turret that can be controlled via the web browser on a mobile phone.
 - The turret equips a airsoft AEG modified from Jinming Gen8 gel blaster gearbox and a laser head for zeroing.
 - The turret fires 7-8mm gel balls, and its barrel assembly contains an LED board as a tracer, but it fails to light up the glowing gel balls as expected.
