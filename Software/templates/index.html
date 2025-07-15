@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Raspberry Pi Camera Stream</title>
+    <style>
+		body {
+            margin: 0;       				/* 移除預設邊距 */
+            overflow: hidden; 				/* 禁止捲動 */
+        }		
+				
+        .img-container1 {
+            display: flex;
+            justify-content: center; 		/* 水平置中 */
+            margin-top: 0;        			/* 與上方物件間的距離 */
+        }		
+
+        img {
+            width: 100%;  					/* 讓影像寬度自適應裝置寬度 */
+            height: auto; 					/* 維持影像比例 */
+			justify-content: center; 		/* 水平置中 */
+            -webkit-touch-callout: none; 	/* 禁止 iOS 長按選單 */
+            -webkit-user-select: none;  	/* 禁止選取 */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .button-container1 {
+            display: flex;
+            justify-content: center; 		/* 水平置中 */
+            gap: 25px;               		/* 按鍵之間的間距 */
+            margin-top: 10px;        		/* 與上方物件間的距離 */
+        }
+
+        .button-container2 {
+            display: flex;
+            justify-content: center; 		/* 水平置中 */
+            gap: 25px;               		/* 按鍵之間的間距 */
+            margin-top: 10px;        		/* 與上方物件間的距離 */
+        }		
+
+        .homing-button, .scenario-button, .fire_mode-button, .load-button, .unload-button, .zoom-button, .searchlight-button, .radar-button, .f1-button {
+            width: 50px;
+            height: 50px;
+            background-size: cover;
+            border: none;      				/* 移除按鍵邊框 */
+            cursor: pointer;
+        }
+
+        .homing-button {
+            background-image: url("static/Homing.bmp");
+        }
+
+        .scenario-button {
+            background-image: url("static/{{ scenario_button_img }}");
+        }
+
+        .fire_mode-button {
+            background-image: url("static/{{ fire_mode_button_img }}");
+        }	
+
+        .load-button {
+            background-image: url("static/Load_disable.bmp");
+        }
+
+        .unload-button {
+            background-image: url("static/Unload_disable.bmp");
+        }		
+
+        .zoom-button {
+            background-image: url("static/Zoom_x1.bmp");
+        }		
+		
+		.searchlight-button {
+			background-image: url("static/{{ searchlight_button_img }}");
+		}
+		
+		.radar-button {
+			background-image: url("static/{{ radar_button_img }}");
+		}
+		
+		.f1-button {
+			background-image: url("static/F1.bmp");
+		}				
+		
+    </style>	
+    <script>
+        function preventImageContextMenu() {
+            const imageElement = document.querySelector("img");
+            imageElement.addEventListener('contextmenu', (event) => event.preventDefault()); // 禁止右鍵選單
+        }
+
+        function preventPageRefreshOnScroll() {
+            window.addEventListener('touchmove', (event) => {
+                // 檢查是否是滑動行為並阻止預設滾動
+                if (event.target.tagName === "IMG") {
+                    event.preventDefault();
+                }
+            }, { passive: false }); // 設置 passive 為 false 才能阻止預設行為
+        }	
+	
+        function getTouchCoordinates(event, element) {
+            const rect = element.getBoundingClientRect();
+
+            // 取得觸控位置（僅使用第一個手指點）
+            const touch = event.touches[0];
+
+            // 傳送座標到伺服器端
+            fetch('/update_touch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ x: touch.clientX - rect.left, y: touch.clientY - rect.top, w: rect.width, h: rect.height})
+            }).then(response => response.json())
+              .then(data => console.log('Touch updated:', data));
+        }
+		
+		function clearTouchCoordinates(event, element) {
+            fetch('/clear_touch', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('Touch cleared:', data));	
+		}		
+
+        function setupTouchListeners() {
+            const imageElement = document.querySelector("img");
+            imageElement.addEventListener('touchstart', (event) => getTouchCoordinates(event, imageElement));
+            // imageElement.addEventListener('touchmove', (event) => getTouchCoordinates(event, imageElement));
+			imageElement.addEventListener('touchend', (event) => clearTouchCoordinates(event, imageElement));
+        }
+		
+        function sendTriggerHomingRequest() {
+            fetch('/triger_homing', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('Homing triggered:', data));
+        }	
+
+        function sendSwitchScenarioRequest() {
+            fetch('/switch_scenario', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Scenario switched:', data);
+				  document.querySelector('.scenario-button').style.backgroundImage = `url("static/${data.scenario_button_img}")`;
+				  document.querySelector('.fire_mode-button').style.backgroundImage = `url("static/${data.fire_mode_button_img}")`;
+				  document.querySelector('.zoom-button').style.backgroundImage = `url("static/${data.zoom_button_img}")`;
+				  document.querySelector('.searchlight-button').style.backgroundImage = `url("static/${data.searchlight_button_img}")`;
+				  document.querySelector('.radar-button').style.backgroundImage = `url("static/${data.radar_button_img}")`;
+              });				  			  
+        }	
+
+        function sendSwitchFireModeRequest() {
+            fetch('/switch_fire_mode', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Fire mode changed:', data);
+				  document.querySelector('.fire_mode-button').style.backgroundImage = `url("static/${data.fire_mode_button_img}")`;
+              });				  			  
+        }	
+		
+		function sendToggleLoadingRequest() {
+            fetch('/toggle_loading', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Ammo loading toggled:', data);
+				  document.querySelector('.load-button').style.backgroundImage = `url("static/${data.load_button_img}")`;
+              });				  			  
+        }	
+		
+		function sendToggleUnloadingRequest() {
+            fetch('/toggle_unloading', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Ammo unloading toggled:', data);
+				  document.querySelector('.unload-button').style.backgroundImage = `url("static/${data.unload_button_img}")`;
+              });				  			  
+        }			
+		
+        function sendSwitchZoomRequest() {
+            fetch('/switch_zoom_level', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('zoom level switched:', data);
+				  document.querySelector('.zoom-button').style.backgroundImage = `url("static/${data.zoom_button_img}")`;
+              });				  			  
+        }	
+
+        function sendToggleSearchlightRequest() {
+            fetch('/toggle_searchlight', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Searchlight toggled:', data);
+				  document.querySelector('.searchlight-button').style.backgroundImage = `url("static/${data.searchlight_button_img}")`;
+              });				  			  
+        }		
+		
+        function sendToggleRadarRequest() {
+            fetch('/toggle_radaar', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Radar toggled:', data);
+				  document.querySelector('.radar-button').style.backgroundImage = `url("static/${data.radar_button_img}")`;
+              });				  			  
+        }
+
+        function sendF1PressRequest() {
+            fetch('/press_f1', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('f1 pressed:', data));
+        }		
+
+        function sendF1ReleaseRequest() {
+            fetch('/release_f1', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('f1 released:', data));
+        }			
+
+        window.onload = () => {
+            preventImageContextMenu();
+            preventPageRefreshOnScroll();
+			setupTouchListeners();
+        };		
+    </script>
+</head>
+<body>    
+    <div class="img-container1">
+		<img src="/video_feed" alt="Video Stream">
+    </div>	
+    <div class="button-container1">
+        <button class="homing-button" onclick="sendTriggerHomingRequest()"></button>
+        <button class="scenario-button" onclick="sendSwitchScenarioRequest()"></button>
+		<button class="fire_mode-button" onclick="sendSwitchFireModeRequest()"></button>
+		<button class="load-button" onclick="sendToggleLoadingRequest()"></button>
+		<button class="unload-button" onclick="sendToggleUnloadingRequest()"></button>
+    </div>
+    <div class="button-container2">
+		<button class="zoom-button" onclick="sendSwitchZoomRequest()"></button>
+		<button class="searchlight-button" onclick="sendToggleSearchlightRequest()"></button>
+		<button class="radar-button" onclick="sendToggleRadarRequest()"></button>		
+		<button class="f1-button" ontouchstart="sendF1PressRequest()" ontouchend="sendF1ReleaseRequest()"></button>
+    </div>	
+</body>
+</html>
