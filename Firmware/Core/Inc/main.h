@@ -47,7 +47,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define FW_VER	"ORCAS_20250711 "
+#define FW_VER	"ORCAS_20250801 "
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);

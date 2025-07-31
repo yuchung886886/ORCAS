@@ -175,7 +175,13 @@ uint8_t tof_sensors_cmds_dispatch(uint8_t* cmd_buf, uint8_t* ack_buf){
 		}
 
 		for(j = 0; j < RANGING_SECTORS_NUMBER; j++){
-			ack_buf[ACK_PARAMS_INDEX + j] = ranging_of_sectors[j];
+			if(ranging_of_sectors[j]){
+				ack_buf[ACK_PARAMS_INDEX + j] = ranging_of_sectors[j];
+			}else{
+				ack_buf[ACK_PARAMS_INDEX + j] = (ranging_of_sectors[(j + 1) % RANGING_SECTORS_NUMBER] +
+												 ranging_of_sectors[(j + RANGING_SECTORS_NUMBER - 1) % RANGING_SECTORS_NUMBER]) / 2;
+			}
+
 		}
 		break;
 	case CMD_CODE__GET_AIMING_DISTANCE:
