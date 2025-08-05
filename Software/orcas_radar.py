@@ -7,7 +7,7 @@ import orcas_attributes
 status = {'en': 0,
           'sectors_angle': 0,
           'sectors_count': 0,
-          'ranging_offset': 3,
+          'ranging_offset': 1,
           'sectors_range_buf_size': 2,
           'sectors_range_buf': [],
           'sectors_range_diff': [],
