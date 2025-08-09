@@ -14,12 +14,19 @@ status = {'state': 'standby', # 'standby', 'tilt_homing', 'scanning', 'panning',
           'saved_static_icon_size': 0,
           'proximity_warning_angle': 0}
           
-target_color = {'hue_max': 99,
-                'hue_min': 62,
-                'sat_max': 240,
-                'sat_min': 113,
-                'val_max': 170,
-                'val_min': 104}
+target_color = {'hue_max': 90,
+                'hue_min': 40,
+                'sat_max': 230,
+                'sat_min': 70,
+                'val_max': 120,
+                'val_min': 60}
+                
+PID_params = {'Kp': [0.6, 0.6],
+              'Ki': [0.05, 0.05],
+              'Kd': [0.1, 0.1],
+              'I_term_prev': [0, 0],
+              'offset_prev': [0, 0]}
+              
                 
 timer1, timer2 = 0, 0
 
@@ -150,6 +157,24 @@ def search_target(frame):
             
     return frame, center_x, center_y 
     
+def PID_ctrl(offset_x, offset_y):
+    offset = [offset_x, offset_y]
+    P_term = [0, 0]
+    I_term = [0, 0]
+    D_term = [0, 0]
+    output = [0, 0]
+    
+    for i in range(0, 2, 1):
+        P_term[i] = offset[i] * PID_params['Kp'][i]
+        I_term[i] = PID_params['I_term_prev'][i] + offset[i] * PID_params['Ki'][i]
+        PID_params['I_term_prev'][i] = I_term[i]
+        D_term[i] = (offset[i] - PID_params['offset_prev'][i]) * PID_params['Kd'][i]
+        PID_params['offset_prev'][i] = offset[i]        
+        output[i] = P_term[i] + I_term[i] + D_term[i]
+
+    return output[0], output[1]
+    
+    
 def attach_info(frame):
     global timer1, timer2, timer3
     
@@ -206,8 +231,18 @@ def attach_info(frame):
                 if (status['saved_fire_mode'] != 'SAFE'):
                     orcas_attributes.status['fire_mode'] = status['saved_fire_mode'] 
                     orcas_attributes.cmds['disable_safety'] = 1
-                orcas_attributes.cmds['touch_coor']['x'] = target_coor_x
-                orcas_attributes.cmds['touch_coor']['y'] = target_coor_y         
+                exec_x, exec_y = PID_ctrl(target_coor_x - (orcas_attributes.status['aim_icon_coor']['x'] - orcas_attributes.status['displayed_frame_origin_coor']['x']), \
+                                          target_coor_y - (orcas_attributes.status['aim_icon_coor']['y'] - orcas_attributes.status['displayed_frame_origin_coor']['y']))
+                orcas_attributes.cmds['touch_coor']['x'] = int(exec_x) + (orcas_attributes.status['aim_icon_coor']['x'] - orcas_attributes.status['displayed_frame_origin_coor']['x'])
+                if (orcas_attributes.cmds['touch_coor']['x'] < 0):
+                    orcas_attributes.cmds['touch_coor']['x'] = 0
+                if (orcas_attributes.cmds['touch_coor']['x'] > orcas_attributes.status['displayed_frame_size']['width']):
+                    orcas_attributes.cmds['touch_coor']['x'] = orcas_attributes.status['displayed_frame_size']['width']
+                orcas_attributes.cmds['touch_coor']['y'] = int(exec_y) + (orcas_attributes.status['aim_icon_coor']['y'] - orcas_attributes.status['displayed_frame_origin_coor']['y'])
+                if (orcas_attributes.cmds['touch_coor']['y'] < 0):
+                    orcas_attributes.cmds['touch_coor']['y'] = 0
+                if (orcas_attributes.cmds['touch_coor']['y'] > orcas_attributes.status['displayed_frame_size']['height']):
+                    orcas_attributes.cmds['touch_coor']['y'] = orcas_attributes.status['displayed_frame_size']['height']                                   
                 orcas_attributes.cmds['clear_coor'] = 1 
                 if ((abs(target_coor_x - (orcas_attributes.status['aim_icon_coor']['x'] - orcas_attributes.status['displayed_frame_origin_coor']['x'])) < orcas_attributes.status['aim_icon_size']) and 
                     (abs(target_coor_y - (orcas_attributes.status['aim_icon_coor']['y'] - orcas_attributes.status['displayed_frame_origin_coor']['y'])) < orcas_attributes.status['aim_icon_size'])):
@@ -216,6 +251,8 @@ def attach_info(frame):
                         timer3 = 0
             else:                
                 timer2 = timer2 + 1
+                PID_params['I_term_prev'][0] = 0
+                PID_params['I_term_prev'][1] = 0                
                 if (timer2 > status['searching_timeout'] // status['searching_period']):
                     status['state'] = 'tilt_homing'
                     orcas_attributes.status['fire_mode'] = 'SAFE' 
