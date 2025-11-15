@@ -26,13 +26,12 @@ uint8_t aeg_motor_state = AEG_MOTOR_STATE__READY;
 uint16_t aeg_piston_released_timeout_ms = 100;
 uint16_t aeg_motor_timer_ms = 0;
 
-uint8_t aeg_motor_duty__auto = 100;
+uint8_t aeg_motor_duty__auto = 60;
 uint8_t aeg_motor_duty__semi = 60;
 uint8_t fire_count = 0;
 
 uint8_t aeg_tracer_duty = 0;
-#define AEG_TRACER_ON_DELAY_MS		0
-#define AEG_TRACER_DIMMING_DELAY_MS	50
+#define AEG_TRACER_DIMMING_DELAY_MS	100
 uint16_t aeg_tracer_timer_ms = 0;
 
 #define RED_DOT_FLASH_HALF_PERIOD_MS	50
@@ -170,6 +169,9 @@ uint8_t fire_ctrl_isr(uint16_t GPIO_Pin){
 			aeg_motor_state = AEG_MOTOR_STATE__RELEASING_PISTON;
 
 			aeg_tracer_timer_ms = 0;
+			aeg_tracer_duty = 100;
+			sConfigOC.Pulse = aeg_tracer_duty;
+			HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, AEG_TRACER_PWM);
 
 			// Load ammo
 			HAL_GPIO_WritePin(FEEDER_MOTOR_DIR_GPIO_Port, FEEDER_MOTOR_DIR_Pin, GPIO_PIN_RESET);
@@ -239,30 +241,23 @@ static uint8_t aeg_motor_ctrl(){
 }
 
 static uint8_t aeg_tracer_ctrl(){
-	switch(aeg_motor_state){
-	case AEG_MOTOR_STATE__PULLING_PISTON:
-		if(aeg_tracer_timer_ms < AEG_TRACER_ON_DELAY_MS){
+
+	if(aeg_tracer_duty){
+		if(aeg_tracer_timer_ms < AEG_TRACER_DIMMING_DELAY_MS){
 			aeg_tracer_timer_ms += (FIRE_CTRL_ROUTINES_GRP1_PERIOD_US / 1000);
 		}else{
-			if(aeg_tracer_duty < 100){
-				aeg_tracer_duty = 100;
+			if(fire_count){
+				aeg_tracer_duty = 0;
 				sConfigOC.Pulse = aeg_tracer_duty;
 				HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, AEG_TRACER_PWM);
-			}
-		}
-		break;
-	default:
-		if(aeg_tracer_duty){
-			if(aeg_tracer_timer_ms < AEG_TRACER_DIMMING_DELAY_MS){
-				aeg_tracer_timer_ms += (FIRE_CTRL_ROUTINES_GRP1_PERIOD_US / 1000);
 			}else{
-				aeg_tracer_duty = aeg_tracer_duty - 1;
+				aeg_tracer_duty = aeg_tracer_duty - 2;
 				sConfigOC.Pulse = aeg_tracer_duty;
 				HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, AEG_TRACER_PWM);
 			}
 		}
-		break;
 	}
+
 	return 0;
 }
 

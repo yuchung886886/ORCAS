@@ -448,17 +448,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PAN_MOTOR_ORIGIN_Pin */
-  GPIO_InitStruct.Pin = PAN_MOTOR_ORIGIN_Pin;
+  /*Configure GPIO pins : PAN_MOTOR_ORIGIN_Pin AEG_PISTON_ENDSTOP_Pin */
+  GPIO_InitStruct.Pin = PAN_MOTOR_ORIGIN_Pin|AEG_PISTON_ENDSTOP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(PAN_MOTOR_ORIGIN_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : AEG_PISTON_ENDSTOP_Pin */
-  GPIO_InitStruct.Pin = AEG_PISTON_ENDSTOP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(AEG_PISTON_ENDSTOP_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : RADAR_MOTOR_SLEEP_Pin */
   GPIO_InitStruct.Pin = RADAR_MOTOR_SLEEP_Pin;
