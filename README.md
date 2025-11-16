@@ -19,19 +19,19 @@ This repository provides the firmware and software source code and hardware sche
 
 # Hardware components
 - The schematic of the turret is located in the Hardware/ folder of this repository.  
-- All electronic units placed in the schematic are off-the-shelf modules that can be found and purchased on the web. You can find the part numbers of these modules in the [Chapter 01: Components and tools list](https://youtu.be/0KciwoFwYZ0) of the tutorial.
+- All electronic units placed in the schematic are off-the-shelf modules that can be found and purchased on the web. You can find the part numbers of these modules in the [Chapter 01: Components and tools list](https://youtu.be/O3RVzEjgn4Q) of the tutorial.
 
 # Firmware binaries and the development environment
 - The compiled firmware binaries are located in the Firmware/bins/ folder of this repository. STM32CubeProgrammer needs to be installed to flash the firmware binary file into the MCU, and the flashing process will be described in the [Chapter 02: Firmware environment setup](https://youtu.be/3vJbjzyAfHk) of the tutorial.
 - The firmware source code package is located in the Firmware/ folder of this repository. These codes are developed in STM32CubeIDE environment, which needs to be installed if you want to modify the codes to compile your custom firmware.
 
 # Software and Raspberry Pi OS
-- The software source code package runs on the Raspberry Pi is located in the Software/ folder of this repository. How to use this software will be explained in the [Chapter 11: Use cases summary](https://youtu.be/us8NNiQkD-Q) of the tutorial.
+- The software source code package runs on the Raspberry Pi is located in the Software/ folder of this repository. How to use this software will be explained in the [Chapter 11: Use cases summary](https://youtu.be/CBzjGMsVI3Y) of the tutorial.
 - The tutorial will only give an overview of the installation and configuration of the Raspberry Pi OS to run the software. You will need to refer to the official Raspberry Pi documentation for detailed instructions.
 
 # Mechanical components
 - All the STL files of the 3D printed parts are NOT shared or open-source, and these files will be sold on Cults3D for private use only.
-- Besides the 3D printed parts, there are also some off-the-shelf mechanical components used in this project and you can refer to the part names listed in the [Chapter 01: Components and tools list](https://youtu.be/0KciwoFwYZ0) of the tutorial to search and purchase these parts on the web.
+- Besides the 3D printed parts, there are also some off-the-shelf mechanical components used in this project and you can refer to the part names listed in the [Chapter 01: Components and tools list](https://youtu.be/O3RVzEjgn4Q) of the tutorial to search and purchase these parts on the web.
 
 # Tutorial
 - Please refer to the link of the YouTube playlist of the complete assembly guide for this project.
